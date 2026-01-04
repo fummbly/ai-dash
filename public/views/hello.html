@@ -7,17 +7,18 @@
     <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"></script>
   </head>
   <body>
-    <p>Test value</p>
     <button hx-get="/models" hx-target="#response" hx-swap="outerHTML">
       Models
     </button>
     {{ template "response" .Response}}
   </body>
 </html>
-{{end}} {{ block "response" .}}
+{{end}} {{block "response" .}}
 <div id="response">
-  {{ if .}}
-  <p>{{.}}</p>
+  {{range .Models}}
+  <p>Name {{.Name}}</p>
+  <p>Size {{.Size}}</p>
+  <p>Details {{.Details}}</p>
   {{end}}
 </div>
 {{end}}

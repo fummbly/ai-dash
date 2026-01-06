@@ -4,9 +4,8 @@ package ai
 import (
 	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 
+	"www.github.com/fummbly/ai-dash/internal/adapters/http"
 	"www.github.com/fummbly/ai-dash/internal/domain"
 )
 
@@ -23,18 +22,8 @@ func NewAIModelEnpoint(url string) *AIModelEndpoint {
 func (ai *AIModelEndpoint) ListModels() (domain.Models, error) {
 	allModelsURL := fmt.Sprintf("%s%s", ai.URL, "/tags")
 
-	res, err := http.Get(allModelsURL)
+	data, err := http.BasicGet(allModelsURL)
 	if err != nil {
-		fmt.Printf("Failed to get models: %v\n", err)
-
-		return domain.Models{}, err
-	}
-	defer res.Body.Close()
-
-	data, err := io.ReadAll(res.Body)
-	if err != nil {
-		fmt.Printf("Failed to read response: %v\n", err)
-
 		return domain.Models{}, err
 	}
 

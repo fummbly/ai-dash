@@ -21,4 +21,31 @@
   <p>Details {{.Details}}</p>
   {{end}}
 </div>
+{{end}} {{block "chat" .}}
+<html>
+  <head>
+    <title>AI Dashboard</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/htmx-ext-sse@2.2.4"
+      integrity="sha384-A986SAtodyH8eg8x8irJnYUk7i9inVQqYigD6qZ9evobksGNIXfeFvDwLSHcp31N"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <button hx-get="/generate" hx-target="#response" hx-swap="outerHTML">
+      Generate
+    </button>
+    <div id="response"></div>
+  </body>
+</html>
+{{end}} {{block "generate" .}}
+<div
+  hx-ext="sse"
+  sse-connect="/stream"
+  sse-swap="message"
+  sse-close="GenerateFinished"
+></div>
 {{end}}

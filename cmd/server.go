@@ -1,10 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"html/template"
 	"io"
-	"log"
 	status "net/http"
 
 	"github.com/labstack/echo/v4"
@@ -53,42 +51,10 @@ func main() {
 		return c.Render(status.StatusOK, "generate", Data{})
 	})
 
-	e.GET("/stream", func(c echo.Context) error {
-		log.Printf("SSE client connected, ip: %v", c.RealIP())
-		w := c.Response()
-		w.Header().Set("Content-Type", "text/event-stream")
-		w.WriteHeader(status.StatusOK)
+	responseService := service.NewResponseService(ai.NewAIResponseEndpoint("http://localhost:11434/api"))
+	responseHandler := http.NewResponseHandler(*responseService)
 
-		dataChan := make(chan string)
-		go http.StreamPost("http://localhost:11434/api/generate", "application/json", `{
-				"model": "gemma3:1b",
-				"prompt": "Why is the sky blue?"
-				}`, dataChan)
-		message := ""
-		for {
-			select {
-			case <-c.Request().Context().Done():
-				log.Printf("SSE client disconnected, ip: %v", c.RealIP())
-				return nil
-			case data, ok := <-dataChan:
-				if !ok {
-					log.Printf("Generated data finished")
-					if _, err := fmt.Fprintf(w, "event: GenerateFinished\ndata: <div>Generated Data finished</div>\n\n"); err != nil {
-						return err
-					}
-					w.Flush()
-
-					return nil
-				}
-				log.Printf("Generated response: %s", data)
-				message += data
-				if _, err := fmt.Fprintf(w, "data: <div>%s</div>\n\n", message); err != nil {
-					return err
-				}
-				w.Flush()
-			}
-		}
-	})
+	e.GET("/stream", responseHandler.StreamResponse)
 
 	modelService := service.NewModelService(ai.NewAIModelEnpoint("http://localhost:11434/api"))
 

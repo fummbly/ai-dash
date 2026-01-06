@@ -1,0 +1,38 @@
+package ai
+
+import (
+	"encoding/json"
+	"fmt"
+
+	"www.github.com/fummbly/ai-dash/internal/adapters/http"
+	"www.github.com/fummbly/ai-dash/internal/domain"
+)
+
+type AIResponseEndpoint struct {
+	URL string
+}
+
+func NewAIResponseEndpoint(url string) *AIResponseEndpoint {
+	return &AIResponseEndpoint{
+		url,
+	}
+}
+
+func (ai *AIResponseEndpoint) Generate(res chan domain.Response) error {
+	generateURL := fmt.Sprintf("%s%s", ai.URL, "/generate")
+
+	data := make(chan string)
+	//TODO change this to be a nested function in a go func
+	go http.StreamPost(generateURL, "application/json", , data)
+
+	var models domain.Models
+
+	err = json.Unmarshal(data, &models)
+	if err != nil {
+		fmt.Printf("Failed to unmarshal json: %v err; %v", string(data), err)
+
+		return domain.Models{}, err
+	}
+
+	return models, nil
+}

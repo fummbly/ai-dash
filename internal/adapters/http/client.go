@@ -48,7 +48,7 @@ func BaiscPost(url string, contentType string, stringData string) ([]byte, error
 	return data, nil
 }
 
-func StreamPost(url, contentType, stringData string, output chan<- string) {
+func StreamPost(url, contentType, stringData string, output chan<- []byte) {
 	defer close(output)
 
 	postData := strings.NewReader(stringData)
@@ -65,7 +65,7 @@ func StreamPost(url, contentType, stringData string, output chan<- string) {
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		output <- line
+		output <- []byte(line)
 	}
 
 	if err := scanner.Err(); err != nil {

@@ -12,6 +12,6 @@ func NewResponseService(endpoint domain.ResponseInterface) *ResponseService {
 	}
 }
 
-func (s *ResponseService) Generate(res chan domain.Response) error {
-	return s.endpoint.Generate(res)
+func (s *ResponseService) Generate(res chan domain.Response, question string) error {
+	return s.endpoint.Generate(res, question)
 }

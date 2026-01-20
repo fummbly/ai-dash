@@ -13,5 +13,5 @@ type Response struct {
 }
 
 type ResponseInterface interface {
-	Generate(res chan Response) error
+	Generate(res chan Response, question string) error
 }

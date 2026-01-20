@@ -15,6 +15,7 @@ import (
 
 type Data struct {
 	Response domain.Models
+	Question string
 }
 
 type Template struct {
@@ -47,8 +48,10 @@ func main() {
 		return c.Render(status.StatusOK, "chat", Data{})
 	})
 
-	e.GET("/generate", func(c echo.Context) error {
-		return c.Render(status.StatusOK, "generate", Data{})
+	e.POST("/generate", func(c echo.Context) error {
+		return c.Render(status.StatusOK, "generate", Data{
+			Question: c.FormValue("question"),
+		})
 	})
 
 	responseService := service.NewResponseService(ai.NewAIResponseEndpoint("http://localhost:11434/api"))

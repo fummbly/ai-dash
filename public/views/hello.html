@@ -35,16 +35,19 @@
     ></script>
   </head>
   <body>
-    <button hx-get="/generate" hx-target="#response" hx-swap="outerHTML">
-      Generate
-    </button>
+    <form hx-post="/generate" hx-target="#response" hx-swap="outerHTML">
+      <input id="question" name="question" type="text"></input>
+      <button type="submit">
+        Generate
+      </button>
+    </form>
     <div id="response"></div>
   </body>
 </html>
 {{end}} {{block "generate" .}}
 <div
   hx-ext="sse"
-  sse-connect="/stream"
+  sse-connect="/stream?question={{.Question}}"
   sse-swap="message"
   sse-close="GenerateFinished"
 ></div>

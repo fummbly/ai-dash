@@ -18,17 +18,17 @@ func NewAIResponseEndpoint(url string) *AIResponseEndpoint {
 	}
 }
 
-func (ai *AIResponseEndpoint) Generate(res chan domain.Response) error {
+func (ai *AIResponseEndpoint) Generate(res chan domain.Response, question string) error {
 	generateURL := fmt.Sprintf("%s%s", ai.URL, "/generate")
 
 	data := make(chan []byte)
 
 	defer close(res)
 
-	postData := `{
+	postData := fmt.Sprintf(`{
 		"model": "gemma3:1b",
-		"prompt": "Why is the sky blue?"
-	}`
+		"prompt": "%s"
+	}`, question)
 
 	// TODO change this to be a nested function in a go func
 	go http.StreamPost(generateURL, "application/json", postData, data)

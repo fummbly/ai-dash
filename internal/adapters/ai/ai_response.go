@@ -44,10 +44,6 @@ func (ai *AIResponseEndpoint) Generate(res chan domain.Response, question string
 
 	for {
 		select {
-		case _, ok := <-res:
-			if !ok {
-				return nil
-			}
 		case byteData, ok := <-data:
 			if !ok {
 				return nil

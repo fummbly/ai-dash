@@ -69,8 +69,8 @@ func StreamPost(url, contentType, stringData string, output chan<- []byte) {
 	}
 
 	if err := scanner.Err(); err != nil {
+		fmt.Println(err)
+
 		return
 	}
-
-	return
 }

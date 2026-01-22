@@ -25,13 +25,20 @@ func (ai *AIResponseEndpoint) Generate(res chan domain.Response, question string
 
 	defer close(res)
 
-	postData := fmt.Sprintf(`{
-		"model": "gemma3:1b",
-		"prompt": "%s"
-	}`, question)
+	message := domain.GenerateMessage{
+		Model:  "gemma3:1b",
+		Prompt: question,
+	}
+
+	jsonMessage, err := json.Marshal(message)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(string(jsonMessage))
 
 	// TODO change this to be a nested function in a go func
-	go http.StreamPost(generateURL, "application/json", postData, data)
+	go http.StreamPost(generateURL, "application/json", string(jsonMessage), data)
 
 	var response domain.Response
 

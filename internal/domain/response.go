@@ -12,6 +12,13 @@ type Response struct {
 	Context    []int     `json:"context"`
 }
 
+type GenerateMessage struct {
+	Model  string `json:"model"`
+	Prompt string `json:"prompt"`
+	System string `json:"system,omitempty"`
+	Think  string `json:"think,omitempty"`
+}
+
 type ResponseInterface interface {
 	Generate(res chan Response, question string) error
 }

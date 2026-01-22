@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 	"www.github.com/fummbly/ai-dash/internal/domain"
@@ -39,7 +40,7 @@ func (h *ResponseHandler) StreamResponse(c echo.Context) error {
 		}
 	}()
 
-	message := ""
+	message := strings.Builder{}
 
 	for {
 		select {
@@ -60,13 +61,11 @@ func (h *ResponseHandler) StreamResponse(c echo.Context) error {
 				return nil
 			}
 
-			// TODO create parser for proper responses
-
-			message += response.Response
-			message = parser.ConvertMarkdown(message)
+			message.WriteString(response.Response)
+			parsedMessage := parser.ConvertMarkdown(message.String())
 			// log.Printf("Generated response: %s", message)
 
-			if _, err := fmt.Fprintf(w, "data: <div>%s</div>\n\n", message); err != nil {
+			if _, err := fmt.Fprintf(w, "data: <div>%s</div>\n\n", parsedMessage); err != nil {
 				return err
 			}
 

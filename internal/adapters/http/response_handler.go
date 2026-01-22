@@ -33,7 +33,9 @@ func (h *ResponseHandler) StreamResponse(c echo.Context) error {
 	go func() {
 		err := h.responeService.Generate(resChan, question)
 		if err != nil {
-			panic(err)
+			log.Printf("Failed to generate response: %v", err)
+
+			return
 		}
 	}()
 

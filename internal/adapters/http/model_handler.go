@@ -22,7 +22,10 @@ func NewModelHandler(svr service.ModelService) *ModelHandler {
 
 func (h *ModelHandler) ListModels(c echo.Context) error {
 	models, err := h.modelService.List()
-	fmt.Printf("AI Models: %v\n", models.Models[0].Name)
+	if len(models.Models) == 0 {
+		return fmt.Errorf("no models were received")
+	}
+
 	if err != nil {
 		fmt.Printf("failed to get models data from api: %v", err)
 

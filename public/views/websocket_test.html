@@ -1,0 +1,24 @@
+{{ block "websocket" .}}
+<html>
+  <head>
+    <title>Websocket Test</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/htmx-ext-ws@2.0.4"
+      integrity="sha384-1RwI/nvUSrMRuNj7hX1+27J8XDdCoSLf0EjEyF69nacuWyiJYoQ/j39RT1mSnd2G"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <div hx-ext="ws" ws-connect="/ws">
+      <div id="notifications"></div>
+      <div id="chat_room"></div>
+      <form id="form" ws-send>
+        <input name="chat_message" />
+      </form>
+    </div>
+  </body>
+</html>
+{{end}}

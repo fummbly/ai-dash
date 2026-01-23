@@ -3,6 +3,7 @@ module www.github.com/fummbly/ai-dash
 go 1.25.5
 
 require (
+	github.com/gorilla/websocket v1.5.3
 	github.com/labstack/echo/v4 v4.15.0
 	github.com/stretchr/testify v1.11.1
 )

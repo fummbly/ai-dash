@@ -59,6 +59,12 @@ func main() {
 
 	e.GET("/stream", responseHandler.StreamResponse)
 
+	e.GET("/test", func(c echo.Context) error {
+		return c.Render(status.StatusOK, "websocket", Data{})
+	})
+
+	e.GET("/ws", responseHandler.WebsocketResponse)
+
 	modelService := service.NewModelService(ai.NewAIModelEnpoint("http://localhost:11434/api"))
 
 	modelHandler := http.NewModelHandler(*modelService)

@@ -1,35 +1,42 @@
 # AGENTS.md - AI Coding Agent Guidelines
 
-This file contains guidelines and commands for agentic coding agents working in this Go-based AI dashboard project.
+This file provides guidelines, commands, and style rules for agents working in the Go‑based AI dashboard project.
 
 ## Project Overview
 
-Go web application using Echo framework with clean architecture:
-- **cmd/**: Application entry points
-- **internal/adapters/**: External integrations (HTTP, AI)
-- **internal/domain/**: Business entities and interfaces
-- **internal/service/**: Business logic layer
-- **internal/parser/**: Text processing utilities
+- `cmd/`: application entry points
+- `internal/adapters/`: external integrations (HTTP, AI)
+- `internal/domain/`: business entities and interfaces
+- `internal/service/`: business logic layer
+- `internal/parser/`: text processing utilities
 
 ## Build, Test, and Development Commands
 
-### Build Commands
+### Build
 ```bash
+# Build binary
 go build -o ./tmp/main cmd/server.go
-air  # Build and run with hot reload
+# Hot‑reload with Air
+air
 ```
 
-### Test Commands
+### Tests
 ```bash
-go test ./...                    # Run all tests
-go test -v ./...                 # Verbose output
-go test ./internal/parser/parser_test.go  # Specific test file
-go test -run TestBoldParse ./internal/parser/  # Specific test function
-go test -cover ./...             # With coverage
+# Run all tests
+go test ./...
+# Verbose output
+go test -v ./...
+# Specific test file
+go test ./internal/parser/parser_test.go
+# Specific test function
+go test -run TestBoldParse ./internal/parser/
+# Test with coverage
+go test -cover ./...
+# Generate HTML coverage report
 go test -coverprofile=coverage.out ./... && go tool cover -html=coverage.out
 ```
 
-### Lint and Quality Commands
+### Lint & Quality
 ```bash
 golangci-lint run
 go fmt ./...
@@ -40,14 +47,13 @@ go mod tidy
 ### Development Server
 ```bash
 go run cmd/server.go
-air  # Hot reload (recommended)
+air  # recommends hot‑reload
 ```
 
 ## Code Style Guidelines
 
 ### Import Organization
-Group imports: standard library → third-party → internal packages. Blank line between groups.
-
+Group imports in the following order: standard library → third‑party → internal packages. Separate groups with a blank line.
 ```go
 import (
     "html/template"
@@ -57,108 +63,80 @@ import (
     "github.com/labstack/echo/v4"
     "github.com/labstack/echo/v4/middleware"
 
-    "www.github.com/fummbly/ai-dash/internal/adapters/ai"
-    "www.github.com/fummbly/ai-dash/internal/domain"
+    "github.com/fummbly/ai-dash/internal/adapters/ai"
+    "github.com/fummbly/ai-dash/internal/domain"
 )
 ```
 
 ### Naming Conventions
-- **Packages**: lowercase, single word (e.g., `parser`, `service`, `domain`)
-- **Structs**: PascalCase, descriptive (`ResponseHandler`, `AIResponseEndpoint`)
-- **Functions**: PascalCase exported, camelCase unexported
-- **Variables**: camelCase, descriptive
-- **Constants**: UPPER_SNAKE_CASE for exported
-- **Interfaces**: Often end with "er" suffix or descriptive (`ResponseInterface`, `ModelInterface`)
+- Packages: lowercase, single word
+- Structs/Interfaces: PascalCase
+- Functions: exported PascalCase, unexported camelCase
+- Variables: camelCase
+- Constants: UPPER_SNAKE_CASE
 
 ### Error Handling
-Handle errors explicitly, use descriptive messages, return without wrapping unless necessary.
-
+Always return errors explicitly with context. Wrap only when adding meaningful information.
 ```go
 data, err := process(input)
 if err != nil {
-    return fmt.Errorf("failed to process input: %w", err)
+    return fmt.Errorf("process failed: %w", err)
 }
 ```
 
-### Struct and Function Patterns
-Use constructor functions, dependency injection through constructors, consistent receiver names.
-
+### Constructors & Dependency Injection
 ```go
 type ResponseHandler struct {
-    responseService service.ResponseService
+    svc service.ResponseService
 }
-
 func NewResponseHandler(svc service.ResponseService) *ResponseHandler {
-    return &ResponseHandler{responseService: svc}
+    return &ResponseHandler{svc: svc}
 }
-
-func (h *ResponseHandler) StreamResponse(c echo.Context) error { }
 ```
 
-### Interface Design
-Define interfaces in domain layer, keep small and focused, use dependency injection.
-
 ### Testing Guidelines
-Use table-driven tests, descriptive names, `github.com/stretchr/testify/assert`.
-
+Use table‑driven tests and `stretchr/testify/assert`.
 ```go
 func TestConvertBold(t *testing.T) {
-    tests := []struct {
-        name     string
-        input    string
-        expected string
-    }{
-        {"basic bold conversion", "text **bold** text", "text <strong>bold</strong> text"},
+    cases := []struct{ name, in, want string }{
+        {"basic", "\**bold\**", "<strong>bold</strong>"},
     }
-    for _, tt := range tests {
-        t.Run(tt.name, func(t *testing.T) {
-            result := ConvertBold(tt.input)
-            assert.Equal(t, tt.expected, result)
+    for _, c := range cases {
+        t.Run(c.name, func(t *testing.T) {
+            got := ConvertBold(c.in)
+            assert.Equal(t, c.want, got)
         })
     }
 }
 ```
 
-### Channel and Concurrency Patterns
-Use channels for streaming, always close when done, use select statements, handle context cancellation.
-
+### Concurrency & Channels
+Always close channels; use `select` when awaiting cancellation.
 ```go
-resChan := make(chan domain.Response)
-defer close(resChan)
+resC := make(chan domain.Response)
+defer close(resC)
 go func() {
-    err := h.responseService.Generate(resChan, question)
-    if err != nil { /* handle error */ }
+    if err := h.svc.Generate(resC, q); err != nil {
+        log.Println(err)
+    }
 }()
 ```
 
-## Project-Specific Patterns
-
-### Clean Architecture
-- **Domain Layer**: Interfaces and business entities
-- **Service Layer**: Business logic using domain interfaces
-- **Adapter Layer**: External integrations (HTTP clients, AI endpoints)
-- **Presentation Layer**: Echo handlers and routing
-
-### AI Integration
-- Ollama API (default: http://localhost:11434/api)
-- Streaming responses using Server-Sent Events
-- JSON unmarshaling for AI response parsing
-
-### HTML Template Rendering
-- Go `html/template` package, templates in `public/views/`
-- Custom renderer implements Echo's `Render` interface
+## Project‑Specific Patterns
+- **Clean Architecture**: Domain → Service → Adapters → Presentation
+- **AI Integration**: Ollama API at `http://localhost:11434/api`, SSE for streaming
+- **Template Rendering**: `html/template` templates stored in `public/views/`
 
 ## Configuration
-
-- **.air.toml**: Air hot reload configuration
-- **.golangci.yml**: Golangci-lint configuration (minimal setup)
-- **go.mod**: Go module dependencies
-- **.gitignore**: Git ignore patterns (only /tmp/)
+- `.air.toml`: Air hot‑reload config
+- `.golangci.yml`: Lint configuration
+- `go.mod`: Module dependencies
+- `.gitignore`: Only ignores `/tmp/`
 
 ## Development Notes
+- Default port: **1323**
+- Echo v4
+- Follow clean architecture throughout the codebase
 
-- Application runs on port 1323 by default
-- Uses Echo v4 web framework
-- Integrates with Ollama for AI functionality
-- Implements Server-Sent Events for streaming responses
-- Follows clean architecture principles
+## Cursor / Copilot Rules
+None defined in this repository.
